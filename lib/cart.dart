@@ -76,20 +76,24 @@ class CartState extends State<Cart> {
 
   Future<void> orderPizzas() async {
     try {
-      userId = _auth.currentUser!.uid.toString();
-      DatabaseReference orderRef =
-          FirebaseDatabase.instance.ref('orders').child(userId).child('pizzas');
-      DatabaseReference userRef = FirebaseDatabase.instance
-          .ref('orders')
-          .child(userId)
-          .child('details');
-      String userAddress = await getPositionOfUser();
-      for (CartPizza pizza in cartPizzas) {
-        orderRef.push().set(pizza.toJson());
+      if (cartPizzas.length != 0) {
+        userId = _auth.currentUser!.uid.toString();
+        DatabaseReference orderRef = FirebaseDatabase.instance
+            .ref('orders')
+            .child(userId)
+            .child('pizzas');
+        DatabaseReference userRef = FirebaseDatabase.instance
+            .ref('orders')
+            .child(userId)
+            .child('details');
+        String userAddress = await getPositionOfUser();
+        for (CartPizza pizza in cartPizzas) {
+          orderRef.push().set(pizza.toJson());
+        }
+        userRef.child('address').set(userAddress);
+        userRef.child('totalPrice').set(totalPrice);
+        _showSnackBar("Order place Successfully!");
       }
-      userRef.child('address').set(userAddress);
-      userRef.child('totalPrice').set(totalPrice);
-      _showSnackBar("Order place Successfully!");
     } catch (error) {
       print("$error");
 

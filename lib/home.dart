@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/bottom.dart';
 import 'package:flutter_app/cart.dart';
 import 'package:flutter_app/detail.dart';
+import 'package:flutter_app/orders.dart';
 import 'package:flutter_app/pizza.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_app/profile.dart';
@@ -15,11 +16,16 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   int _currentIndex = 0;
+  String _sortOption = 'Price: Low to High'; // Default sort option
 
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  void goToOrders() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Orders()));
   }
 
   List<Pizza> pizzas = [];
@@ -47,6 +53,18 @@ class HomeState extends State<Home> {
           'Menu',
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: _showSortOptions,
+            color: Colors.white,
+          ),
+          IconButton(
+            icon: Icon(Icons.shopping_bag),
+            onPressed: goToOrders,
+            color: Colors.white,
+          ),
+        ],
         backgroundColor: Colors.black,
       ),
       body: _buildBody(),
@@ -56,6 +74,51 @@ class HomeState extends State<Home> {
       ),
       backgroundColor: Color(0xffccb80e),
     );
+  }
+
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Price: Low to High'),
+                onTap: () {
+                  setState(() {
+                    _sortOption = 'Price: Low to High';
+                    _sortPizzas(true);
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              ListTile(
+                title: Text('Price: High to Low'),
+                onTap: () {
+                  setState(() {
+                    _sortOption = 'Price: High to Low';
+                    _sortPizzas(false);
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _sortPizzas(bool ascending) {
+    pizzas.sort((a, b) {
+      if (ascending) {
+        return a.pPrice.compareTo(b.pPrice);
+      } else {
+        return b.pPrice.compareTo(a.pPrice);
+      }
+    });
   }
 
   Widget _buildBody() {
